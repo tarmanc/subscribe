@@ -14,7 +14,7 @@ public class SubscriberDTO {
 
     @ApiModelProperty(required = true)
     @NotEmpty(message = "Must Enter an User Name")
-    @Size(min = 4, max = 16, message = "asd")
+    @Size(min = 4, max = 16)
     private String userName;
 
     @ApiModelProperty(allowEmptyValue = true)
