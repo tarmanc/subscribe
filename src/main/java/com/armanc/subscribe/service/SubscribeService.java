@@ -1,64 +1,84 @@
 package com.armanc.subscribe.service;
 
-import com.armanc.subscribe.entity.Subscriber;
 import com.armanc.subscribe.dao.ISubscriberDAO;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.armanc.subscribe.entity.Subscriber;
+import com.armanc.subscribe.entity.SubscriberDTO;
+import com.armanc.subscribe.entity.SubscriberMapper;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-
 import javax.transaction.Transactional;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Service
 @Transactional
+@AllArgsConstructor
 public class SubscribeService {
 
-    @Autowired
-    private ISubscriberDAO subscriberDAO;
+    private final ISubscriberDAO subscriberDAO;
+    private final SubscriberMapper mapper;
 
 
-    public Subscriber getSubByID(long id) {
-        return subscriberDAO.findById(id).get();
+    public List<SubscriberDTO> getAllUsers() {
+        List<Subscriber> subscriberList = subscriberDAO.findAll();
+        return mapper.sourceListToSubscriberDTO(subscriberList);
     }
 
-    public Subscriber getSubByName(String userName) {
-
-        return subscriberDAO.findByUserName(userName);
+    public SubscriberDTO getSubByID(long id) {
+        Subscriber subscriber = subscriberDAO.findById(id).get();
+        return mapper.sourceToDTO(subscriber);
     }
 
-    public String subUnsub(String name) {
+    public Subscriber newSubscriber(SubscriberDTO subscriberDTO) {
 
-        Subscriber subscriber = subscriberDAO.findByUserName(name);
-        subscriber.setSubs(!(subscriber.isSubs()));
-        return ("User Name: " + subscriber.getUserName() +
-                "\nSub Status Updated: " + subscriber.isSubs());
+        Subscriber subscriber = mapper.subscriberDTOToSource(subscriberDTO);
+
+        if (!(subscriber.isSubs())) {
+            subscriber.setSubs(true);
+        }
+
+        subscriberDAO.save(subscriber);
+        return subscriber;
     }
 
-    public String subUnsub(long id) {
+    public SubscriberDTO subUnsub(long id) {
 
         Subscriber subscriber = subscriberDAO.findById(id).get();
-
         subscriber.setSubs(!(subscriber.isSubs()));
-        return ("User Name: " + subscriber.getUserName() +
-                "\nSub Status Updated: " + subscriber.isSubs());
 
+        return mapper.sourceToDTO(subscriber);
     }
 
-    //    public void newSubscriber(Subscriber subscriber) {
-//
-//        String userName = subscriber.getUserName();
-//
-//        if (!(subscriberDAO.existsByUserName(userName))) {
-//
-//            if (!(subscriber.isSubs())) {
-//                subscriber.setSubs(true);
-//            }
-//
-//            if (subscriber.getSubDate() == null) {
-//                subscriber.setSubDate(LocalDate.now());
-//            }
-//
-//            subscriberDAO.save(subscriber);
-//        }
-//    }
+    public void updateSub(SubscriberDTO subscriberDTO, long id) {
+        Subscriber subscriber = mapper.subscriberDTOToSource(subscriberDTO);
+        subscriber.setId(id);
+        subscriberDAO.save(subscriber);
+    }
+
+    public void deleteSub(long id) {
+        subscriberDAO.deleteById(id);
+    }
+
+    public List<SubscriberDTO> getByDate(char operation, LocalDate localDate) {
+ 
+        List<Subscriber> subscriberList = new ArrayList<>();
+
+        switch (operation) {
+            case '=':
+                subscriberList = subscriberDAO.findAllBySubDateEquals(localDate);
+                break;
+            case '>':
+                subscriberList = subscriberDAO.findAllBySubDateIsAfter(localDate);
+                break;
+            case '<':
+                subscriberList = subscriberDAO.findAllBySubDateIsBefore(localDate);
+                break;
+        }
+
+        return mapper.sourceListToSubscriberDTO(subscriberList);
+    }
+
 }

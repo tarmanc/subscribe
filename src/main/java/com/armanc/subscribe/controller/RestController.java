@@ -1,44 +1,79 @@
 package com.armanc.subscribe.controller;
 
-
 import com.armanc.subscribe.entity.Subscriber;
+import com.armanc.subscribe.entity.SubscriberDTO;
 import com.armanc.subscribe.service.SubscribeService;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.AllArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.List;
 
 
 @org.springframework.web.bind.annotation.RestController
 @RequestMapping("/subscribers")
+@AllArgsConstructor
+@Api(value = "Subscriber API Documentation")
 public class RestController {
 
-    @Autowired
-    SubscribeService service;
+    final SubscribeService service;
 
 
-    //Get a single user by ID
+    @GetMapping()
+    @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(value = "Get All Subscribers", produces = "application/json")
+    public List<SubscriberDTO> getAllUsers(
+            @RequestParam(name = "op", required = false) @ApiParam(name = "op", value = "Operator", example = ">, <, =") char op,
+            @RequestParam(name = "date", required = false) @ApiParam(name = "date", value = "Date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate localDate) {
+
+        if(localDate != null){
+            return service.getByDate(op,localDate);
+        }
+
+        return service.getAllUsers();
+    }
+
     @GetMapping("/{id}")
-    public Subscriber getSubById(@PathVariable long id) {
-            return service.getSubByID(id);
+    @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(value = "Get a Subscriber", produces = "application/json")
+    public SubscriberDTO getSubById(
+            @PathVariable @ApiParam(value = "User ID", required = true, example = "123") long id) {
+
+        return service.getSubByID(id);
     }
 
-    //Get a single user by user name
-    @GetMapping("/user/{name}")
-    public Subscriber getSubByName(@PathVariable("name") String userName) {
-        return service.getSubByName(userName);
+    @PostMapping()
+    @ResponseStatus(HttpStatus.CREATED)
+    @ApiOperation(value = "Add a New Subscriber", produces = "application/json", consumes = "application/json")
+    public Subscriber addNewSubs(@RequestBody SubscriberDTO subscriberDTO) {
+        return service.newSubscriber(subscriberDTO);
     }
 
-
-    //Update Subscription status by user name
-    @PatchMapping("/user/{name}")
-    public String subUnsubByName(@PathVariable("name") String name) {
-        return service.subUnsub(name);
-    }
-
-    //Update Subscription status by id
     @PatchMapping("/{id}")
-    public String subUnsubById(@PathVariable long id) {
+    @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(value = "Update Subscriber Status", produces = "application/json", consumes = "application/json")
+    public SubscriberDTO subUnsubById(@PathVariable @ApiParam(value = "User ID", required = true, example = "123") long id) {
         return service.subUnsub(id);
+    }
+
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(value = "Update a Subscriber")
+    public void updateSub(@RequestBody SubscriberDTO subscriberDTO,
+                          @PathVariable @ApiParam(value = "User ID", required = true, example = "123") long id) {
+        service.updateSub(subscriberDTO, id);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ApiOperation(value = "Delete a Subscriber")
+    public void deleteSub(@PathVariable @ApiParam(value = "User ID", required = true, example = "123") long id) {
+        service.deleteSub(id);
     }
 
 }
