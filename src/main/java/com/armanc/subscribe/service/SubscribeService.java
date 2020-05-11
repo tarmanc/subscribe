@@ -29,18 +29,16 @@ public class SubscribeService {
 
     public SubscriberDTO getSubByID(long id) {
         Subscriber subscriber = subscriberDAO.findById(id).get();
+
         return mapper.sourceToDTO(subscriber);
     }
 
     public Subscriber newSubscriber(SubscriberDTO subscriberDTO) {
 
         Subscriber subscriber = mapper.subscriberDTOToSource(subscriberDTO);
-
-        if (!(subscriber.isSubs())) {
-            subscriber.setSubs(true);
-        }
-
+        subscriber.setSubs(true);
         subscriberDAO.save(subscriber);
+
         return subscriber;
     }
 
@@ -63,7 +61,7 @@ public class SubscribeService {
     }
 
     public List<SubscriberDTO> getByDate(char operation, LocalDate localDate) {
- 
+
         List<Subscriber> subscriberList = new ArrayList<>();
 
         switch (operation) {
