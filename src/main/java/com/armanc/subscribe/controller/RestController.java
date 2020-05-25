@@ -7,6 +7,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.AllArgsConstructor;
+import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -15,10 +16,10 @@ import java.time.LocalDate;
 import java.util.List;
 
 
-@org.springframework.web.bind.annotation.RestController
-@RequestMapping("/subscribers")
 @AllArgsConstructor
 @Api(value = "Subscriber API Documentation")
+@RepositoryRestController
+@RequestMapping("/subscribers")
 public class RestController {
 
     final SubscribeService service;
@@ -27,21 +28,36 @@ public class RestController {
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(value = "Get All Subscribers", produces = "application/json")
-    public List<SubscriberDTO> getAllUsers(
-            @RequestParam(name = "op", required = false) @ApiParam(name = "op", value = "Operator", example = ">, <, =") char op,
+    public @ResponseBody
+    List<SubscriberDTO> getAllUsers(
+            @RequestParam(name = "op", required = false) @ApiParam(name = "op", value = "Operator", example = ">, <, =") Character op,
             @RequestParam(name = "date", required = false) @ApiParam(name = "date", value = "Date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate localDate) {
 
-        if(localDate != null){
-            return service.getByDate(op,localDate);
+
+        if (localDate != null) {
+            return service.getByDate(op, localDate);
         }
 
         return service.getAllUsers();
     }
 
+//    @GetMapping("/{id}")
+//    @ResponseStatus(HttpStatus.OK)
+//    @ApiOperation(value = "Get a Subscriber", produces = "application/json")
+//    public ResponseEntity<PersistentEntityResource> getSubById(
+//            @PathVariable @ApiParam(value = "User ID", required = true, example = "123") long id,
+//            PersistentEntityResourceAssembler assembler) {
+//
+//        SubscriberDTO subscriberDTO = service.getSubByID(id);
+//
+//        return ResponseEntity.ok(assembler.toResource(subscriberDTO));
+//    }
+
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(value = "Get a Subscriber", produces = "application/json")
-    public SubscriberDTO getSubById(
+    public @ResponseBody
+    SubscriberDTO getSubById(
             @PathVariable @ApiParam(value = "User ID", required = true, example = "123") long id) {
 
         return service.getSubByID(id);
@@ -50,14 +66,14 @@ public class RestController {
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation(value = "Add a New Subscriber", produces = "application/json", consumes = "application/json")
-    public Subscriber addNewSubs(@RequestBody SubscriberDTO subscriberDTO) {
+    public @ResponseBody Subscriber addNewSubs(@RequestBody SubscriberDTO subscriberDTO) {
         return service.newSubscriber(subscriberDTO);
     }
 
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(value = "Update Subscriber Status", produces = "application/json", consumes = "application/json")
-    public SubscriberDTO subUnsubById(@PathVariable @ApiParam(value = "User ID", required = true, example = "123") long id) {
+    public @ResponseBody SubscriberDTO subUnsubById(@PathVariable @ApiParam(value = "User ID", required = true, example = "123") long id) {
         return service.subUnsub(id);
     }
 

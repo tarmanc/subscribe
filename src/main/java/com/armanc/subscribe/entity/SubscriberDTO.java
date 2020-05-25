@@ -8,9 +8,11 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
+
 @Data
 @ApiModel()
-public class SubscriberDTO {
+public class SubscriberDTO{
+
 
     @ApiModelProperty(required = true)
     @NotEmpty(message = "Must Enter an User Name")
@@ -22,5 +24,6 @@ public class SubscriberDTO {
 
     @ApiModelProperty(allowEmptyValue = true)
     private LocalDate subDate = LocalDate.now();
+
 
 }
