@@ -33,25 +33,11 @@ public class RestController {
             @RequestParam(name = "op", required = false) @ApiParam(name = "op", value = "Operator", example = ">, <, =") Character op,
             @RequestParam(name = "date", required = false) @ApiParam(name = "date", value = "Date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate localDate) {
 
-
         if (localDate != null) {
             return service.getByDate(op, localDate);
         }
-
         return service.getAllUsers();
     }
-
-//    @GetMapping("/{id}")
-//    @ResponseStatus(HttpStatus.OK)
-//    @ApiOperation(value = "Get a Subscriber", produces = "application/json")
-//    public ResponseEntity<PersistentEntityResource> getSubById(
-//            @PathVariable @ApiParam(value = "User ID", required = true, example = "123") long id,
-//            PersistentEntityResourceAssembler assembler) {
-//
-//        SubscriberDTO subscriberDTO = service.getSubByID(id);
-//
-//        return ResponseEntity.ok(assembler.toResource(subscriberDTO));
-//    }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
@@ -66,14 +52,16 @@ public class RestController {
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation(value = "Add a New Subscriber", produces = "application/json", consumes = "application/json")
-    public @ResponseBody Subscriber addNewSubs(@RequestBody SubscriberDTO subscriberDTO) {
+    public @ResponseBody
+    Subscriber addNewSubs(@RequestBody SubscriberDTO subscriberDTO) {
         return service.newSubscriber(subscriberDTO);
     }
 
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(value = "Update Subscriber Status", produces = "application/json", consumes = "application/json")
-    public @ResponseBody SubscriberDTO subUnsubById(@PathVariable @ApiParam(value = "User ID", required = true, example = "123") long id) {
+    public @ResponseBody
+    SubscriberDTO subUnsubById(@PathVariable @ApiParam(value = "User ID", required = true, example = "123") long id) {
         return service.subUnsub(id);
     }
 
@@ -91,5 +79,4 @@ public class RestController {
     public void deleteSub(@PathVariable @ApiParam(value = "User ID", required = true, example = "123") long id) {
         service.deleteSub(id);
     }
-
 }
